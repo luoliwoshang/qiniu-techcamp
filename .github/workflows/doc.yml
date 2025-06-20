@@ -16,12 +16,18 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Get changed markdown files
-        id: changed-markdown-files
-        uses: tj-actions/changed-files@v44
-        with:
-          files: |
-            **/*.md
+      - name: Check if any markdown files changed
+        id: check-md-files
+        run: |
+          CHANGED_MD=$(git diff --name-only ${{ github.event.before }} ${{ github.sha }} | grep '\.md$' || true)
+          if [ -n "$CHANGED_MD" ]; then
+            echo "any_changed=true" >> $GITHUB_OUTPUT
+            echo "changed_files<<EOF" >> $GITHUB_OUTPUT
+            echo "$CHANGED_MD" >> $GITHUB_OUTPUT
+            echo "EOF" >> $GITHUB_OUTPUT
+          else
+            echo "any_changed=false" >> $GITHUB_OUTPUT
+          fi
 
       - name: List all changed files
         env:

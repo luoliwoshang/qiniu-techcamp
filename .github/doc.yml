@@ -1,0 +1,33 @@
+name: Doc
+
+on:
+  push:
+    branches: ["**"]
+  pull_request:
+    branches: ["**"]
+
+jobs:
+  validate-docs:
+    name: Validate Markdown Files
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Get changed markdown files
+        id: changed-markdown-files
+        uses: tj-actions/changed-files@v44
+        with:
+          files: |
+            **/*.md
+
+      - name: Link Checker
+        if: steps.changed-markdown-files.outputs.any_changed == 'true'
+        uses: lycheeverse/lychee-action@v2
+        with:
+          args: >-
+            --verbose
+            --no-progress
+            ${{ steps.changed-markdown-files.outputs.all_changed_files }}
